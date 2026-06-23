@@ -1,6 +1,7 @@
 items:
   - name: "iPhone 17 Pro 256GB"
     model_keywords: ["iPhone 17 Pro", "iPhone17 Pro"]
+    exclude_keywords: ["iPhone 17 Pro Max", "iPhone17 Pro Max"]
     capacity: "256GB"
     cost_price: 179800
     sell_target_profit: 0
@@ -8,6 +9,7 @@ items:
 
   - name: "iPhone 17 Pro 512GB"
     model_keywords: ["iPhone 17 Pro", "iPhone17 Pro"]
+    exclude_keywords: ["iPhone 17 Pro Max", "iPhone17 Pro Max"]
     capacity: "512GB"
     cost_price: 214800
     sell_target_profit: 0
@@ -40,6 +42,8 @@ fetchers:
 
 scraping:
   timeout_seconds: 20
+  retries: 3
+  retry_sleep_seconds: 2
   min_price: 100000
   max_price: 350000
   user_agent: "Mozilla/5.0 (compatible; iPhonePriceWatcher/1.0; +https://github.com/)"

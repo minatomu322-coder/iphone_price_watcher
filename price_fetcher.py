@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -36,6 +37,8 @@ class KaikyoTsushinFetcher:
         self.shop_name = fetcher_config.get("shop_name", "海峡通信")
         self.url = fetcher_config["url"]
         self.timeout = int(scraping_config.get("timeout_seconds", 20))
+        self.retries = int(scraping_config.get("retries", 3))
+        self.retry_sleep_seconds = float(scraping_config.get("retry_sleep_seconds", 2))
         self.min_price = int(scraping_config.get("min_price", 100000))
         self.max_price = int(scraping_config.get("max_price", 350000))
         self.user_agent = scraping_config.get("user_agent", "iPhonePriceWatcher/1.0")
@@ -74,12 +77,21 @@ class KaikyoTsushinFetcher:
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
         }
-        response = requests.get(url, headers=headers, timeout=self.timeout)
-        response.raise_for_status()
-        response.encoding = response.apparent_encoding or response.encoding
-        if not response.text.strip():
-            raise RuntimeError("空のレスポンスです")
-        return response.text
+        last_error: Exception | None = None
+        for attempt in range(1, self.retries + 1):
+            try:
+                response = requests.get(url, headers=headers, timeout=self.timeout)
+                response.raise_for_status()
+                response.encoding = response.apparent_encoding or response.encoding
+                if not response.text.strip():
+                    raise RuntimeError("空のレスポンスです")
+                return response.text
+            except Exception as exc:
+                last_error = exc
+                if attempt < self.retries:
+                    time.sleep(self.retry_sleep_seconds)
+
+        raise RuntimeError(f"{self.retries}回リトライ後も取得失敗: {last_error}")
 
     def _result_from_blocks(self, item: dict[str, Any], blocks: list[str], url: str) -> PriceResult:
         price = select_price_for_item(
@@ -141,15 +153,10 @@ def select_price_for_item(
     if exact_price is not None:
         return exact_price
 
-    model_keywords = item.get("model_keywords", [item["name"].replace(f" {item['capacity']}", "")])
-    capacity = str(item["capacity"])
     scored_prices: list[tuple[int, int]] = []
 
     for block in blocks:
-        compact = normalize_match_text(block)
-        has_model = any(normalize_match_text(keyword) in compact for keyword in model_keywords)
-        has_capacity = normalize_match_text(capacity) in compact
-        if not has_model or not has_capacity:
+        if not block_matches_item(block, item):
             continue
 
         for match in PRICE_RE.finditer(block):
@@ -172,18 +179,16 @@ def select_exact_unopened_price(
     min_price: int,
     max_price: int,
 ) -> int | None:
-    product = re.escape(str(item["name"]))
-    pattern = re.compile(
-        rf"{product}\s*simfree\s*未開封.*?確定\s*(?:¥|￥)?\s*([1-9]\d{{2,3}}(?:,\d{{3}})+|[1-9]\d{{5,6}})\s*円?",
-        re.IGNORECASE,
-    )
     for block in sorted(blocks, key=len):
-        match = pattern.search(block)
-        if not match:
+        if not block_matches_item(block, item):
             continue
-        price = int(match.group(1).replace(",", ""))
-        if min_price <= price <= max_price:
-            return price
+        compact = normalize_match_text(block)
+        if "未開封" not in block or "確定" not in block or "simfree" not in compact:
+            continue
+        for match in PRICE_RE.finditer(block):
+            price = int(match.group(1).replace(",", ""))
+            if min_price <= price <= max_price:
+                return price
     return None
 
 
@@ -204,6 +209,19 @@ def score_candidate(block: str, price_index: int, item: dict[str, Any]) -> int:
             score -= 120
     score -= price_index // 10
     return score
+
+
+def block_matches_item(block: str, item: dict[str, Any]) -> bool:
+    compact = normalize_match_text(block)
+    model_keywords = item.get("model_keywords", [item["name"].replace(f" {item['capacity']}", "")])
+    exclude_keywords = item.get("exclude_keywords", [])
+    capacity = normalize_match_text(str(item["capacity"]))
+
+    if capacity not in compact:
+        return False
+    if any(normalize_match_text(keyword) in compact for keyword in exclude_keywords):
+        return False
+    return any(normalize_match_text(keyword) in compact for keyword in model_keywords)
 
 
 def normalize_text(text: str) -> str:
