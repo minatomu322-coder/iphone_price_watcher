@@ -1,0 +1,52 @@
+items:
+  - name: "iPhone 17 Pro 256GB"
+    model_keywords: ["iPhone 17 Pro", "iPhone17 Pro"]
+    capacity: "256GB"
+    cost_price: 179800
+    sell_target_profit: 0
+    url: "https://www.mobile-ichiban.com/Prod/1/01/36"
+
+  - name: "iPhone 17 Pro 512GB"
+    model_keywords: ["iPhone 17 Pro", "iPhone17 Pro"]
+    capacity: "512GB"
+    cost_price: 214800
+    sell_target_profit: 0
+    url: "https://www.mobile-ichiban.com/Prod/1/01/36"
+
+  - name: "iPhone 17 Pro Max 256GB"
+    model_keywords: ["iPhone 17 Pro Max", "iPhone17 Pro Max"]
+    capacity: "256GB"
+    cost_price: 194800
+    sell_target_profit: 0
+    url: "https://www.mobile-ichiban.com/Prod/1/01/37"
+
+  - name: "iPhone 17 Pro Max 512GB"
+    model_keywords: ["iPhone 17 Pro Max", "iPhone17 Pro Max"]
+    capacity: "512GB"
+    cost_price: 229800
+    sell_target_profit: 0
+    url: "https://www.mobile-ichiban.com/Prod/1/01/37"
+
+decision:
+  notify_up_delta: 3000
+  notify_down_delta: -3000
+  wait_loss_limit: -10000
+
+fetchers:
+  - name: "kaikyo_tsushin"
+    enabled: true
+    shop_name: "海峡通信"
+    url: "https://www.mobile-ichiban.com/Prod/1/01/37"
+
+scraping:
+  timeout_seconds: 20
+  min_price: 100000
+  max_price: 350000
+  user_agent: "Mozilla/5.0 (compatible; iPhonePriceWatcher/1.0; +https://github.com/)"
+
+discord:
+  username: "iPhone Price Watcher"
+  notify_every_run: true
+
+storage:
+  csv_path: "data/iphone_prices.csv"
