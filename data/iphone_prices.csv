@@ -3103,3 +3103,7 @@ timestamp,product,capacity,shop,price,cost_price,profit,decision,previous_delta,
 2026-09-08T17:08:22.107693+00:00,iPhone 17 Pro 512GB,512GB,海峡通信,173500,214800,-41300,ALERT,-30500,-1000,ok,"前回比 -30,500円",https://www.mobile-ichiban.com/Prod/1/01/36
 2026-09-08T17:08:22.107693+00:00,iPhone 17 Pro Max 256GB,256GB,海峡通信,190000,194800,-4800,WAIT,0,-1000,ok,目標未達,https://www.mobile-ichiban.com/Prod/1/01/37
 2026-09-08T17:08:22.107693+00:00,iPhone 17 Pro Max 512GB,512GB,海峡通信,190000,229800,-39800,ALERT,-30000,-1000,ok,"前回比 -30,000円",https://www.mobile-ichiban.com/Prod/1/01/37
+2026-09-08T20:55:31.176113+00:00,iPhone 17 Pro 256GB,256GB,海峡通信,173500,179800,-6300,WAIT,0,-1000,ok,目標未達,https://www.mobile-ichiban.com/Prod/1/01/36
+2026-09-08T20:55:31.176113+00:00,iPhone 17 Pro 512GB,512GB,海峡通信,173500,214800,-41300,WAIT,0,-1000,ok,損益が監視ライン以下,https://www.mobile-ichiban.com/Prod/1/01/36
+2026-09-08T20:55:31.176113+00:00,iPhone 17 Pro Max 256GB,256GB,海峡通信,190000,194800,-4800,WAIT,0,-1000,ok,目標未達,https://www.mobile-ichiban.com/Prod/1/01/37
+2026-09-08T20:55:31.176113+00:00,iPhone 17 Pro Max 512GB,512GB,海峡通信,190000,229800,-39800,WAIT,0,-1000,ok,損益が監視ライン以下,https://www.mobile-ichiban.com/Prod/1/01/37
